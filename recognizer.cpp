@@ -46,7 +46,7 @@ public:
                 value += input[j] * weights[(i * input_size) + j];
             }
 
-            outputs[i] = value;
+            outputs[i] = value > 0 ? value : 0;
         }
     }
  
@@ -129,7 +129,7 @@ void train(string file_name, Net *net, vector<float> &correct) {
         }
     }
     
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 1; i++) {
         net -> forward(input);
         vector<float> output = net -> get_outputs();
     
@@ -156,27 +156,54 @@ vector<float> predict(string file_name, Net *net) {
     return net -> get_outputs();
 }
 
+void train_one_iter(Net *net) {
+    vector<string> digit_files = {
+        "digits/zero.txt", "digits/one.txt", "digits/two.txt",
+        "digits/three.txt", "digits/four.txt", "digits/five.txt",
+        "digits/six.txt", "digits/seven.txt", "digits/eight.txt",
+        "digits/nine.txt"
+    };
+
+    vector<vector<float>> correct = {
+        {0,0,0,0},
+        {0,0,0,1},
+        {0,0,1,0},
+        {0,0,1,1},
+        {0,1,0,0},
+        {0,1,0,1},
+        {0,1,1,0},
+        {0,1,1,1},
+        {1,0,0,0},
+        {1,0,0,1}
+    };
+
+    for (int i = 0; i < 10; i++) {
+        train(digit_files[i], net, correct[i]);
+    }
+}
+
 int main() {
     Net *net = new Net();
     
-    vector<float> correct2 = {0,0,1,0};
-    vector<float> correct3 = {0,0,1,1};
-
-    train("two.txt", net, correct2);
-    train("three.txt", net, correct3);
+    for (int i = 0; i < 1000; i++) {
+        train_one_iter(net);
+    }
     
-    vector<float> ans2 = predict("two.txt", net);
-    vector<float> ans3 = predict("three.txt", net);
+    vector<string> digit_files = {
+        "digits/zero.txt", "digits/one.txt", "digits/two.txt",
+        "digits/three.txt", "digits/four.txt", "digits/five.txt",
+        "digits/six.txt", "digits/seven.txt", "digits/eight.txt",
+        "digits/nine.txt"
+    };
 
-    for (float ele: ans2) {
-        cout << ele << " ";
+    for (int i = 0; i < 10; ++i) {
+        vector<float> ans = predict(digit_files[i], net);
+        cout << "Prediction for digit " << i << ": ";
+        for (float ele : ans) {
+            cout << ele << " ";
+        }
+        cout << "\n";
     }
-    cout << "\n\n";
-
-    for (int ele: ans3) {
-        cout << ele << " ";
-    }
-    cout << "\n";
 
     delete net;
     return 0;
