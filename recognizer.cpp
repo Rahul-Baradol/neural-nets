@@ -114,8 +114,31 @@ public:
     }
 };
 
-int main() {
-    fstream file("two.txt");
+void train(string file_name, Net *net, vector<float> &correct) {
+    fstream file(file_name);
+    string line;
+
+    vector<float> input;
+    while (getline(file, line)) {
+        for (char c: line) {
+            if (c == '.') {
+                input.push_back(0);
+            } else {
+                input.push_back(1);
+            }
+        }
+    }
+    
+    for (int i = 0; i < 1000; i++) {
+        net -> forward(input);
+        vector<float> output = net -> get_outputs();
+    
+        net -> backward(0.05, input, output, correct);    
+    }
+}
+
+vector<float> predict(string file_name, Net *net) {
+    fstream file(file_name);
     string line;
 
     vector<float> input;
@@ -129,30 +152,31 @@ int main() {
         }
     }
 
+    net -> forward(input);
+    return net -> get_outputs();
+}
+
+int main() {
     Net *net = new Net();
-    for (int i = -1; ; i++) {
-        this_thread::sleep_for(chrono::milliseconds(250)); 
-        system("clear");
+    
+    vector<float> correct2 = {0,0,1,0};
+    vector<float> correct3 = {0,0,1,1};
 
-        net -> forward(input);
+    train("two.txt", net, correct2);
+    train("three.txt", net, correct3);
+    
+    vector<float> ans2 = predict("two.txt", net);
+    vector<float> ans3 = predict("three.txt", net);
 
-        vector<float> output = net -> get_outputs();
-        vector<float> correct = {0,0,1,0};
-
-        float loss = 0;
-        for (int i = 0; i < 4; i++) {
-            float diff = output[i] - correct[i];
-            loss += diff * diff;
-        }
-
-        cout << loss << "\n";
-        for (float ele: output) {
-            cout << ele << " ";
-        }
-        cout << "\n\n";
-
-        net -> backward(0.05, input, output, correct);
+    for (float ele: ans2) {
+        cout << ele << " ";
     }
+    cout << "\n\n";
+
+    for (int ele: ans3) {
+        cout << ele << " ";
+    }
+    cout << "\n";
 
     delete net;
     return 0;
