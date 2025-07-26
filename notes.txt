@@ -1,0 +1,15 @@
+y1 = (i1 * w1) + (i2 * w2) ... + b1
+
+dy1/dw1 = i1
+dy1/dw2 = i2
+dy1/dw3 = i3
+...
+
+
+dl/dw1 = dl/dy1 * dy1/dw1 = dl/dy1 * i1 = (y1' - y1) * i1
+=> dl/dw1 = (y1' - y1) * i1
+
+w1 = w1 - (lr * dl/dw1)
+
+dl/dw110 = dl/dy2 * dy2/dw110 = (y2' - y2) * i10
+=> dl/dw110 = (y2' - y2) * i10
